@@ -12,12 +12,14 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
 - Il registro `X29` o `FP` è usato come frame pointer
 - Il registro `X30` è usato per memorizzare l’indirizzo di ritorno di una funzione, chiamato link register `LR`.
 
-Nelle istruzioni, la scelta dei registri `X`, `W`, `V`, `S` o `D` determina la dimensione dell'operazione.
+> **Nota**: Non si può utilizzare xzr come secondo operando. Al suo posto si utilizza MOV
+
+> Nelle istruzioni, la scelta dei registri `X`, `W`, `V`, `S` o `D` determina la dimensione dell'operazione.
 
 ## Direttive assemblatore
-- `.cpu cortex-a53` -> specifica il tipo di CPU
+- `.cpu` -> specifica il tipo di CPU
 - `.text` -> indica la parte di codice da eseguire
-- `.data` -> specifica le variabili salvate nell'Heap
+- `.data` -> specifica le [variabili](#variables) salvate nell'Heap
   - `.float` -> inserisce un numero **float32**
   - `.ascii` -> inserisce una **stringa** (non terminata da 0)
   - `.asciiz`-> inserisce una **stringa** terminata da zero
@@ -27,18 +29,23 @@ Nelle istruzioni, la scelta dei registri `X`, `W`, `V`, `S` o `D` determina la d
   - `.space` -> riserva k bytes non inizializzati
 - `.p2align 2` -> indica che gli indirizzi di memoria devono essere multipli di 2^2. Va specificato dopo `.text` e `.data`
 
-## Istruzioni
+## Instructions
+**Formato delle istruzioni**:
+<img src="./_img/instruction_format.png" title="Instruction format">
+
 ### Memory Access Instructions
 |Istruzione|Formato|Note|
-|--|--|--|
+|:-:|--|--|
 |Load|`ldr <Rd>, [<Rn>]`|`<Rd> < MEM[<Rn>]`|
 |Store|`str <Rd>, [<Rn>]`|`<Rd> > MEM[<Rn>]`|
 |Address|`adr <Rd>, label`|Carica l'indirizzo di memoria in un registro (usato spesso con le variabili)|
 |Swap|`swp Rd, Rm, [Rn]`|Swap Rm with location [Rn], [Rn] value placed in Rd|
 
+> Note sull'istruzione `adr`: la label deve trovarsi entro 1MB del PC perchè l'indirizzo è specificato come offset dal PC. Con l'istruzione `ADPR` (stesso formato di `adr`) l'indice della pagina deve trovarsi entro 4GB dal PC.
+
 ### General data processing instructions
 |Istruzione|Formato|Note|
-|--|--|--|
+|:-:|--|--|
 |Add|`add <Rd>, <Rn>, <Operand2>`|`Rd = Rn + Operand2`|
 |Sub|`sub <Rd>, <Rn>, <Operand2>`|`Rd = Rn - Operand2`|
 |Multiply|`mul <Rd>, <Rn>, <Rs>`|`Rd = Rn * Rs`|
@@ -49,13 +56,50 @@ Nelle istruzioni, la scelta dei registri `X`, `W`, `V`, `S` o `D` determina la d
 
 > **Note** sull'istruzione `cmp`: tale istruzione viene utilizzata quando abbiamo bisogno di comparare due registri per eventuali salti condizionati. Il risultato viene salvato automaticamente nel registro `APSR`.
 
-### Conditional execution
+> **Note** sull'istruzione `mov`: per usare immediati più grandi di 12bit si utilizza l'istruzione `MOVZ`.
+
+### Barrel shifter
+Shiftando un numero è possibile moltiplicare (shift a sinistra) o dividere (shift a destra) per potenze di 2.
+Queste istruzioni vengono usate nel secondo operando (detto anche operando flessibile).
+
+|Istruzione|Formato|Note|
+|:-:|:-|--|
+|LSL|`add <Rd>, <Rn>, <Operand2>, LSL #n`|Operand2 is the contents of `<Operand2>` multiplied by `#n`|
+|LSR|`add <Rd>, <Rn>, <Operand2>`|Operand2 is the contents of `<Operand2>` divided by `#n`|
+|ARS|`add <Rd>, <Rn>, <Operand2>, ASR #n`|Operand2 is the contents of `<Operand2>` divided by `#n`|
+
+#### LSL & LSR
+L'istruzione `lsl` (Logical Left Shift) e `lsr` (Logical Right Shift) vengono utilizzate per inserire degli zeri, rispettivamente a sinistra e a destra.
+
+<img src="./_img/lsl&lsr.png" title="LSL & LSR">
+
+#### ARS
+L'istruzione `ars` (Arithmetic Right Shift) inserisce 0 o 1 tenendo conto del segno.
+
+<img src="./_img/ars.png" title="LSL & LSR">
+
+
+### Branch instructions
+#### Salti non condizionati
+|Istruzione|Formato|Note|
+|:-:|:-:|--|
+|BL|`bl label`|The BL instruction copies the address of the next instruction into `r14` (lr, the link register), and causes a branch to label.|
+|BR|`br Rm`|Salta all’indirizzo contenuto nel registro `Rm`|
+|BLR|`blr Rm`|Salta all’indirizzo contenuto nel registro `Rm` e salva l’indirizzo dell’istruzione successiva nel registro `x30`.|
+
+#### Salti condizionati semplici
+|Istruzione|Formato|Note|
+|--|--|--|
+|CBZ|`cbz Rm, label`|Salta all’indirizzo label se `Rm` è **uguale a zero**|
+|CBNZ|`cbnz Rm, label`|Salta all’indirizzo label se `Rm` è **diverso da zero**|
+
+#### Salti condizionati
 **Formato istruzione**: `b.<cond> label` 
 
 Salta all'indirizzo label sulla base di una conditional mnemonics, descritti attraverso la tabella che segue:
 
 |`<cond>`|Meaning|Flags|
-|--|--|--|
+|:-:|:-:|:-:|
 |`eq`|Equal|`Z == 1`|
 |`ne`|Not equal|`Z == 0`|
 |`hs`|Higher or same (unsigned >=)|`C == 1`|
@@ -74,6 +118,34 @@ Salta all'indirizzo label sulla base di una conditional mnemonics, descritti att
 
 >**Nota**: La colonna "Flags" indica i condition codes contenuti nel registro APSR (Application Program Status Register). N (se negativo), Z (se è zero), V (se c'è stato overflow) e C (se c'è stato un carry).
 
+#### Conditional select
+Conditional select, returning the first or second input.
+
+**Formato istruzione**: `csel <Rd>, <Rn>, <Rm>, <cond>`
+
+**Traduzione**:
+```c
+  if (<cond>) {
+    <Rd> = <Rn>;
+  } else {
+    <Rd> = <Rm>;
+  }
+```
+
+#### Conditional increment
+Conditional select increment, returning the first input or incremented second input.
+
+**Formato istruzione**: `csinc <Rd>, <Rn>, <Rm>, <cond>`
+
+**Traduzione**:
+```c
+  if (<cond>) {
+    <Rd> = <Rn>;
+  } else {
+    <Rd> = <Rm> + 1;
+  }
+```
+
 ### System call
 **Formato istruzione**: `svc #n`
 
@@ -81,15 +153,35 @@ Attraverso questa operazione il controllo passa al Kernel che esegue una funzion
 
 
 | Numero | syscall name |  `x0` |  `x1` |  `x2` |  `x3` |  `x4` |  `x5` |
-|--------|--------------|-------|-------|-------|-------|-------|-------|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 |   63   |     read     |`unsigned int fd`|`char* buf`|`size_t count`| | | |
 |   64   |     write    |`unsigned int fd`|`const char *buf`|`size_t count`||||
 |   93   |     exit     |`int error_code`	|   |      |   |       |
 
 Una lista completa di tutte le System Calls è disponibile a questo [link](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md#arm64-64_bit)
 
-## Variabili
+## Variables
+Le variabili in Assembly vengono definite nella sezione `.data` specificando il nome e il tipo.
 
-## Costrutti
+I **tipi** delle variabili possono essere i seguenti:
+- `.float` -> inserisce un numero **float32**
+- `.ascii` -> inserisce una **stringa** (non terminata da 0)
+- `.asciiz`-> inserisce una **stringa** terminata da zero
+- `.byte` -> inserisce un **byte**
+- `.word` -> inserisce un numero **int32** (bisognerà usare i registri `w<n>`)
+- `.dword` -> inserisce un numero **int64** (bisognerà usare i registri `x<n>`)
+- `.space` -> riserva k bytes non inizializzati
 
-## Funzioni
+**Esempio**:
+```assembly
+.data
+.p2align 2
+
+a:  .word -5, 10, 17, 100   //Array
+b:  .word 20
+c:  .word 0
+```
+## Constructs
+
+
+## Functions

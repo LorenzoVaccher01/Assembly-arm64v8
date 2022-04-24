@@ -9,8 +9,6 @@
 
 .global _start
 
-.extern printf
-
 _start:  
   /*inizializzazione dei registri*/           
   adr x13, arr     // x13 = &arr (indirizzo di memoria)
