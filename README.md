@@ -177,10 +177,32 @@ I **tipi** delle variabili possono essere i seguenti:
 .data
 .p2align 2
 
-a:  .word -5, 10, 17, 100   //Array
-b:  .word 20
-c:  .word 0
+a:    .word -5, 10, 17, 100   //Array
+b:    .word 20
+c:    .word 0
+str:  .ascii "Hi\n!"          //String di 3 Bytes         
 ```
+
+**Nota**: Le variabili vengono salvate in memoria, per poterle utilizzare è necessario salvare l'indirizzo di memoria in un registro e successivamente (ed eventualmente) caricare il valore.
+
+### Integers
+*ATTENZIONE*: verificare il tipo di variabile, se usiamo un intero a 32Bit questo dovrà essere salvato in un registro `w<n>`, altrimenti se a 64Bit `x<n>`. In ogni caso l'indirizzo di memoria andrà salvato in un registro a 64Bit (`x<n>`).
+
+```assembly
+[...]
+  //dove size è tipo .dword (64Bit, doppia precisione)
+  adr x16, size    // x16 = &size (indirizzo di memoria)
+  ldr x14, [x16]   // x14 < mem[x16]
+[...]
+```
+**Conversione floating point/interi**
+
+//TODO: da fare
+
+### Strings
+
+### Arrays
+
 ## Constructs
 
 
