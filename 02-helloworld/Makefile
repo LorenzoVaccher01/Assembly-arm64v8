@@ -1,18 +1,17 @@
 CFLAGS = -Wall -O0 -mcpu=cortex-a53+nosimd
 
-all: clean helloworld
+all: clean main
 
 %.o: %.s
 	clang --target=aarch64-elf $(CFLAGS) -g -c $< -o $@
 	llvm-objdump-11 -d -s $@ > $@.assembled.dump
 	readelf -a $@ > $@.assembled.readelf.dump
 
-helloworld: main.o
-	ld.lld -m aarch64elf -nostdlib main.o -o helloworld
+main: main.o
+	ld.lld --entry=_start -m aarch64elf -nostdlib main.o -o main
 	llvm-objdump-11 -d -s $@ > $@.linked.dump
 	readelf -a $@ > $@.linked.readelf.dump
 
-
 .PHONY: clean
 clean:
-	rm helloworld *.o *.dump  >/dev/null 2>/dev/null || true
+	rm main *.o *.dump  >/dev/null 2>/dev/null || true
