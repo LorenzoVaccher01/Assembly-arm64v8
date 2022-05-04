@@ -8,9 +8,6 @@
 .text
 .p2align 2
 
-/*funzioni esterne*/
-.extern print_int_c
-
 sum_even_pos:     //x0 -> ar  x1 -> size_ar
   mov x2, #0      //Indice arr = 0
   mov x3, #0      //Valore da ritornare
@@ -40,8 +37,6 @@ _start:
   mov x1, #10       //Size dell'array
 
   bl sum_even_pos   //In x0 è presente il return
-
-  b print_int_c    
   
   b exit            // branch all'etichetta exit presente nel file exit.s
 
