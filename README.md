@@ -56,7 +56,7 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
 
 > **Note** sull'istruzione `cmp`: tale istruzione viene utilizzata quando abbiamo bisogno di comparare due registri per eventuali salti condizionati. Il risultato viene salvato automaticamente nel registro `APSR`.
 
-> **Note** sull'istruzione `mov`: per usare immediati più grandi di 16bit si utilizza l'istruzione `MOVZ` o 'MOVK' shiftando le cifre a gruppi di 16bit le cifre. //TODO: inserire esempio
+> **Note** sull'istruzione `mov`: per usare immediati più grandi di 16bit si utilizza l'istruzione `MOVZ` (carica i bit e mette gli altri a zero) o 'MOVK' (carica i bit lasciando inalterati gli altri) shiftando le cifre a gruppi di 16bit le cifre.
 
 ### Barrel shifter
 Shiftando un numero è possibile moltiplicare (shift a sinistra) o dividere (shift a destra) per potenze di 2.
@@ -199,11 +199,78 @@ str:  .ascii "Hi\n!"          //String di 3 Bytes
 
 //TODO: da fare
 
-### Strings
-
-### Arrays
-
 ## Constructs
+### For
+//TODO: non è ottimizzato! per ogni ciclo vengono fatti due controlli! SOLO UNO!
+```c
+for (int i = 0; i < 10; i++) {
+  [...]
+}
+```
 
+```assembly
+initfor:  //x2 = i
+  cmp x2, #10
+  b.eq exitfor
 
+  [...]
+  
+  add x2, x2, #1  //increment counter
+  b initfor
+
+exitfor:
+  mov x2, #0
+```
+### If - else
+```c
+  if (x <cond> y)
+    [...]
+  else 
+    [...]
+```
+
+```assembly
+  cmp x1, x2  //x1 = x, x2 = y
+  b.<cond> elselabel
+  
+  [...]
+  b exitlabel
+
+  elselabel:
+    [...]
+
+  exitlabel:
+
+```
+### While, Do-While
+```c
+  do {
+    [...]
+  } while (x <cond> y);
+```
+```assembly
+  initdo:
+    [...]
+    cmp x1, x2 //x1 = x, x2 = y
+    b.<!cond> initdo
+```
+
+```c
+  while (x <cond> y) {
+    [...]
+  }
+```
+```assembly
+
+  cmp x1, x2 //x1 = x, x2 = y
+  b.<!cond> exitwhile
+
+  initwhile:
+    [...]
+    cmp x1, x2
+    b.<cond> initwhile
+  
+  exitwhile:
+
+```
 ## Functions
