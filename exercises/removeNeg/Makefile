@@ -7,12 +7,8 @@ all: clean main
 	llvm-objdump-11 -d -s $@ > $@.assembled.dump
 	readelf -a $@ > $@.assembled.readelf.dump
 
-%.o: %.c
-	gcc -I./ -O3 -lrt -ansi -pedantic -Wno-unused-result -c $< -o $@
-	llvm-objdump-11 -d -s $@ > $@.assembled.c.dump
-
-main: main.o utils.o
-	ld.lld -m aarch64elf main.o utils.o -o main
+main: main.o exit.o
+	ld.lld -m aarch64elf -nostdlib main.o exit.o -o main
 	llvm-objdump-11 -d -s $@ > $@.linked.dump
 	readelf -a $@ > $@.linked.readelf.dump
 

@@ -25,6 +25,7 @@ sum_even_pos:     //x0 -> ar  x1 -> size_ar
     add w3, w3, w4
 
     add x2, x2, #2   //incremento indice
+    b initfor
 
   exitfor:
     mov w0, w3      //Carico nel registro x0 il valore da ritornare
@@ -44,4 +45,4 @@ _start:
 .data
 .p2align 2
 
-ar: .word 1, -1, 2, -2, 4, -4, 5, -5, 6, -6 //Array
+ar: .word 1, 100, 1, 100, 1, 100, 1, 100, 1, 100 //Array
