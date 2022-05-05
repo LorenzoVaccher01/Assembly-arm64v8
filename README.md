@@ -56,7 +56,7 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
 
 > **Note** sull'istruzione `cmp`: tale istruzione viene utilizzata quando abbiamo bisogno di comparare due registri per eventuali salti condizionati. Il risultato viene salvato automaticamente nel registro `APSR`.
 
-> **Note** sull'istruzione `mov`: per usare immediati più grandi di 12bit si utilizza l'istruzione `MOVZ`.
+> **Note** sull'istruzione `mov`: per usare immediati più grandi di 16bit si utilizza l'istruzione `MOVZ` o 'MOVK' shiftando le cifre a gruppi di 16bit le cifre. //TODO: inserire esempio
 
 ### Barrel shifter
 Shiftando un numero è possibile moltiplicare (shift a sinistra) o dividere (shift a destra) per potenze di 2.
