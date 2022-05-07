@@ -201,7 +201,6 @@ str:  .ascii "Hi\n!"          //String di 3 Bytes
 
 ## Constructs
 ### For
-//TODO: non è ottimizzato! per ogni ciclo vengono fatti due controlli! SOLO UNO!
 ```c
 for (int i = 0; i < 10; i++) {
   [...]
@@ -209,14 +208,15 @@ for (int i = 0; i < 10; i++) {
 ```
 
 ```assembly
-initfor:  //x2 = i
-  cmp x2, #10
-  b.eq exitfor
+cmp x2, #10   //x2 = i
+b.ge exitfor  // >=
 
+initfor:
   [...]
   
   add x2, x2, #1  //increment counter
-  b initfor
+  cmp x2, #10
+  b.lt initfor
 
 exitfor:
   mov x2, #0
@@ -273,4 +273,25 @@ exitfor:
   exitwhile:
 
 ```
+
 ## Functions
+Per chiamare una procedura abbiamo bisogno d'interrompere il flusso d'istruzioni e dare il controllo al codice della procedura stessa. Al termine della procedura l’esecuzione deve riprendere all’istruzione successiva l’interruzione. 
+Esiste un insieme di regole, Procedure Call Standard (PCS), che regola il passaggio di parametri e il ritorno:
+- I **parametri** della funzione chiamata sono passati nei registri `x0`, ..., `x7`. Se la funzione accetta più di 8 parametri occorre usare lo Stack. 
+- Il **valore di ritorno** di una funzione è passato nel registro `x0`.
+- L’**indirizzo** alla **prossima istruzione** del codice chiamante è contenuto in `x30`, chiamato anche `LR`
+- La funzione chiamata può utilizzare i **registri** `x0`, ..., `x15` senza preoccuparsi di preservarne il loro valore. E’ responsabilità del chiamante salvare il loro valore se necessario.
+- La funzione chiamata deve preservare il valore dei **registri** `x1`, ..., `x27`. Significa che può modificarli, però prima di ritornare al chiamante (con RET) deve ripristinare il loro valore originario.
+- Generalmente i **registri** `x8`,`x16`,`x17`,`x18` sono **riservati**.
+
+
+**Esempio**:
+```assembly
+procedure:
+  [...]
+  ret   //Prima del ret ricordarsi di salvare in x0 il valore da ritornare
+
+_start:
+  [...]
+  bl procedure
+```

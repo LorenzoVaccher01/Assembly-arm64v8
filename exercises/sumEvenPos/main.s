@@ -14,18 +14,16 @@ sum_even_pos:     //x0 -> ar  x1 -> size_ar
   mov x5, #0      //Valore da prendere dall'array
 
   cmp x2, x1
-  b.eq exitfor
+  b.ge exitfor
 
   initfor:
-    cmp x2, x1
-    b.eq exitfor
-    /* body for */
     add x5, x0, x2, LSL #2  //x5=(x0+x2)*4
     ldr w4, [x5]            //x4 = $(A[x5])
-    add w3, w3, w4
+    add w3, w3, w4          //w3 += w4
 
     add x2, x2, #2   //incremento indice
-    b initfor
+    cmp x2, x1
+    b.lt initfor
 
   exitfor:
     mov w0, w3      //Carico nel registro x0 il valore da ritornare

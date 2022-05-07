@@ -11,9 +11,10 @@ remove_neg:         //x0 -> a  x1 -> a.size
   mov x2, #0       //indice array
   mov w3, #0       //somma negativi
 
+  cmp x2, x1
+  b.ge exitfor
+
   initfor:
-    cmp x2, x1
-    b.eq exitfor
     /* body for */
     add x5, x0, x2, LSL #2  //x5=x0+x2*4
     ldr w4, [x5]
@@ -21,12 +22,14 @@ remove_neg:         //x0 -> a  x1 -> a.size
     cmp w4, #0
     b.ge endif
 
-    add w3, w3, w4
-    str xzr, [x5]
+    add w3, w3, w4    // w3 +=  w4
+    mov x6, x5
+    str xzr, [x6]     // xzr > &(x5)
 
     endif:
       add x2, x2, #1   //incremento indice
-      b initfor
+      cmp x2, x1 
+      b.lt initfor
 
   exitfor:
     mov w0, w3      //load risultato in x0

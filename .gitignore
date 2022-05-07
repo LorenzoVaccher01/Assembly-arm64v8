@@ -6,6 +6,8 @@
 # File sorgente
 *.o
 *.o.*
+main
+main.linked.*
 
 # User-specific files
 *.rsuser
