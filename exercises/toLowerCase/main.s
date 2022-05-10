@@ -11,16 +11,16 @@ toLowerCase:  //void, x0 -> &(str), x1 -> size
   b.ge exitfor
 
   initfor:
-    add x3, x0, x2 //TODO: vedere se è giusto
+    add x3, x0, x2
     ldr w4, [x3]
 
-    // if (w4 >= 65 && w4 <= 90) => eseguire operazione lower case
-    cmp w4, #65
-    b.lt exitif 
-    cmp w4, #90
-    b.gt exitif
+    // if (!(w4 < 65 || w4 > 90)) => eseguire operazione lower case
+    cmp w4, 0x0041
+    b.lt exitif // <
+    cmp w4, 0x005a
+    b.gt exitif // >
 
-    add w5, w4, #-32 
+    add w5, w4, #32 
     str w5, [x3]
 
     exitif:
@@ -50,5 +50,5 @@ _start:
 .data
 .p2align 2
 
-str: .ascii "Questo È UN TEST!\n"
-size: .word 18
+str: .ascii "CiaO\n"
+size: .word 5
