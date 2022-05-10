@@ -19,7 +19,7 @@ remove_neg:         //x0 -> a  x1 -> a.size
     b.ge endif
 
     add w3, w3, w4    // w3 +=  w4
-    str xzr, [x5]     // xzr > &(x5)
+    str wzr, [x5]     // xzr > &(x5)
 
     endif:
       add x2, x2, #1   //incremento indice
@@ -27,7 +27,7 @@ remove_neg:         //x0 -> a  x1 -> a.size
       b.lt initfor
 
   exitfor:
-    mov w0, w3      //load risultato in x0
+    mov x0, x3
 
   ret
 
@@ -44,4 +44,4 @@ _start:
 .data
 .p2align 2
 
-a: .word 1, 2, -3, -3, 5 //Array
+a: .word 1, 2, -3, -1, 5 //Array
