@@ -1,7 +1,3 @@
-/*
-  Tradurre in assembly MIPS la porzione di codice C presente nel file main.c.
-*/
-
 .cpu cortex-a53
 
 .text
@@ -23,12 +19,11 @@ remove_neg:         //x0 -> a  x1 -> a.size
     b.ge endif
 
     add w3, w3, w4    // w3 +=  w4
-    mov x6, x5
-    str xzr, [x6]     // xzr > &(x5)
+    str xzr, [x5]     // xzr > &(x5)
 
     endif:
       add x2, x2, #1   //incremento indice
-      cmp x2, x1 
+      cmp x2, x1
       b.lt initfor
 
   exitfor:

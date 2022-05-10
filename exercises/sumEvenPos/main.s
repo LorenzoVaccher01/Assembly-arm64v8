@@ -1,8 +1,3 @@
-/*
-  Tradurre in assembly MIPS la porzione di codice C presente nel file main.c, dove la funzione sum even pos 
-  somma gli elementi in posizione pari di un array di interi.
-*/
-
 .cpu cortex-a53
 
 .text
