@@ -12,16 +12,16 @@ toLowerCase:  //void, x0 -> &(str), x1 -> size
 
   initfor:
     add x3, x0, x2
-    ldr w4, [x3]
+    ldrb w4, [x3] //in questo modo prendiamo solo il byte relativo al carattere
 
     // if (!(w4 < 65 || w4 > 90)) => eseguire operazione lower case
-    cmp w4, 0x0041
+    cmp w4, #60
     b.lt exitif // <
-    cmp w4, 0x005a
+    cmp w4, #90
     b.gt exitif // >
 
     add w5, w4, #32 
-    str w5, [x3]
+    strb w5, [x3]
 
     exitif:
       add x2, x2, #1    // x2 += 1
@@ -50,5 +50,5 @@ _start:
 .data
 .p2align 2
 
-str: .ascii "CiaO\n"
-size: .word 5
+str: .ascii "CiaO QUESTO è un TEST!\n"
+size: .word 24
