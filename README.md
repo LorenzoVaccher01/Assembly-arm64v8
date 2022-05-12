@@ -195,9 +195,6 @@ str:  .ascii "Hi\n!"          //String di 3 Bytes
   ldr x14, [x16]   // x14 < mem[x16]
 [...]
 ```
-**Conversione floating point/interi**
-
-//TODO: da fare
 
 ## Constructs
 ### For
@@ -294,4 +291,34 @@ procedure:
 _start:
   [...]
   bl procedure
+```
+
+## Stack
+Lo Stack è inizialmente allocato all’indirizzo `0x7FFFFFF2B0` e puntato dal registro `SP`.
+Cresce e decrese quando viene aggiunto (push) o tolto (pop) un elemento.
+
+Tutti gli accessi alla memoria effettuati mediante il registro `SP` devono essere allineati a 16 Bytes (gli indirizzi devono essere multipli di 16).
+
+```assembly
+          /* Primo modo, push e pop */
+
+str w0, [SP, #-16]!				// push w0 
+str w1, [SP, #-16]!				// push w1
+str x2, [SP, #-16]!				// push x2
+
+ldr x5, [SP], #16				// pop x5
+ldr w4, [SP], #16				// pop w4
+ldr w3, [SP], #16				// pop w3
+
+          /* Secondo modo, push e pop */
+//Decrementiamo manualmente SP
+sub SP, SP, #16					// creiamo spazio per 16 bytes nello stack
+str w0, [SP, #12]				// *(sp+12) = w0
+str w1, [SP, #8]				// *(sp+8) = w1
+str x2, [SP]					// *(sp) = x2
+
+ldr x5, [SP]					// x5 = *(sp)
+ldr w4, [SP, #8]				// w4 = *(sp+8)
+ldr w3, [SP, #12]				// w3 = *(sp+12)
+add SP, SP, #16					// togliamo lo spazio per i 16 bytes
 ```
