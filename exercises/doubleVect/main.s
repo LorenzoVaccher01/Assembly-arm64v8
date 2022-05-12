@@ -43,5 +43,5 @@ _start:
 .p2align 2
 
 a: .word 1, 2, 3, 4, 5
-b: .space 20
+b: .space 5
 size: .word 5
