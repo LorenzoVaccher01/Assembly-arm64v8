@@ -3,31 +3,24 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
 
 ## Registri
 - Ci sono **31 registri general purpose**
-  - `X<n>` registri a 64bit
-  - `W<n>` registri a 32bit (i meno significativi di `X<n>`)
-  - `S<n>` registri floating point a 32bit
-  - `D<n>` registri floating point a 64bit
-- Il registro `XZR` contiene sempre il valore `0` e ignora le write
-- Il registro `X28` o `SP` è usato come stack pointer
-- Il registro `X29` o `FP` è usato come frame pointer
-- Il registro `X30` è usato per memorizzare l’indirizzo di ritorno di una funzione, chiamato link register `LR`.
+  - `X<n>` registri a 64bit.
+  - `W<n>` registri a 32bit (i meno significativi di `X<n>`).
+  - `S<n>` registri floating point a 32bit.
+  - `D<n>` registri floating point a 64bit.
+- `XZR`/`WZR`contiene sempre il valore `0` e ignora le write.
+- X28` o `SP` è usato come stack pointer.
+- `X29` o `FP` è usato come frame pointer.
+- `X30` è usato per memorizzare l’indirizzo di ritorno di una funzione, chiamato link register `LR`.
 
 > **Nota**: Non si può utilizzare xzr come secondo operando. Al suo posto si utilizza MOV
 
 > Nelle istruzioni, la scelta dei registri `X`, `W`, `V`, `S` o `D` determina la dimensione dell'operazione.
 
 ## Direttive assemblatore
-- `.cpu` -> specifica il tipo di CPU
-- `.text` -> indica la parte di codice da eseguire
-- `.data` -> specifica le [variabili](#variables) salvate nell'Heap
-  - `.float` -> inserisce un numero **float32**
-  - `.ascii` -> inserisce una **stringa** (non terminata da 0)
-  - `.asciiz`-> inserisce una **stringa** terminata da zero
-  - `.byte` -> inserisce un **byte**
-  - `.word` -> inserisce un numero **int32** (bisognerà usare i registri `w<n>`)
-  - `.dword` -> inserisce un numero **int64** (bisognerà usare i registri `x<n>`)
-  - `.space` -> riserva k bytes non inizializzati
-- `.p2align 2` -> indica che gli indirizzi di memoria devono essere multipli di 2^2. Va specificato dopo `.text` e `.data`
+- `.cpu` -> specifica il tipo di CPU.
+- `.text` -> indica la parte di codice da eseguire.
+- `.data` -> specifica le [variabili](#variables) salvate nell'Heap.
+- `.p2align 2` -> indica che gli indirizzi di memoria devono essere multipli di 2^2. Va specificato dopo `.text` e `.data`. Per maggiori informazioni riguardante questa direttiva consultare il seguente [link](https://sourceware.org/binutils/docs/as/P2align.html#P2align).
 
 ## Instructions
 **Formato delle istruzioni**:
@@ -53,6 +46,8 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
 |Or|`or <Rd>, <Rn>, <Operand2>`|`Rd = Rn \|\| Operand2`|
 |Move|`mov <Rd>, <Rn>`|Copia il valore del secondo registro nel primo|
 |Compare|`cmp <Rd>, <Rn>`|Compara due registri (usata per i salti condizionati)|
+
+> **Note**: se l'operazione logico/aritmetica è seguita dal prefisso "s" (`ands`, `ors') viene effettuato anche il compare dei registri (`cmp`).
 
 > **Note** sull'istruzione `cmp`: tale istruzione viene utilizzata quando abbiamo bisogno di comparare due registri per eventuali salti condizionati. Il risultato viene salvato automaticamente nel registro `APSR`.
 
@@ -178,12 +173,12 @@ I **tipi** delle variabili possono essere i seguenti:
 .p2align 2
 
 a:    .word -5, 10, 17, 100   //Array
-b:    .word 20
-c:    .word 0
+b:    .dword 20
+c:    .dword 0.4
 str:  .ascii "Hi\n!"          //String di 3 Bytes         
 ```
 
-**Nota**: Le variabili vengono salvate in memoria, per poterle utilizzare è necessario salvare l'indirizzo di memoria in un registro e successivamente (ed eventualmente) caricare il valore.
+**Nota**: Le variabili vengono salvate in memoria, per poterle utilizzare è necessario salvare l'indirizzo di memoria in un registro (istruzione `adr`) e successivamente (ed eventualmente) caricare il valore (istruzione `ldr`).
 
 ### Integers
 *ATTENZIONE*: verificare il tipo di variabile, se usiamo un intero a 32Bit questo dovrà essere salvato in un registro `w<n>`, altrimenti se a 64Bit `x<n>`. In ogni caso l'indirizzo di memoria andrà salvato in un registro a 64Bit (`x<n>`).
@@ -278,7 +273,7 @@ Esiste un insieme di regole, Procedure Call Standard (PCS), che regola il passag
 - Il **valore di ritorno** di una funzione è passato nel registro `x0`.
 - L’**indirizzo** alla **prossima istruzione** del codice chiamante è contenuto in `x30`, chiamato anche `LR`
 - La funzione chiamata può utilizzare i **registri** `x0`, ..., `x15` senza preoccuparsi di preservarne il loro valore. E’ responsabilità del chiamante salvare il loro valore se necessario.
-- La funzione chiamata deve preservare il valore dei **registri** `x1`, ..., `x27`. Significa che può modificarli, però prima di ritornare al chiamante (con RET) deve ripristinare il loro valore originario.
+- La funzione chiamata deve preservare il valore dei **registri** `x1`, ..., `x27`. Significa che può modificarli, però prima di ritornare al chiamante (con `RET`) deve ripristinare il loro valore originario.
 - Generalmente i **registri** `x8`,`x16`,`x17`,`x18` sono **riservati**.
 
 
