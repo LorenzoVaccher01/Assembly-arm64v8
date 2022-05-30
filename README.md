@@ -8,7 +8,7 @@ Gli appunti di questa repository hanno come unico scopo quello di essere un faci
   - `S<n>` registri floating point a 32bit.
   - `D<n>` registri floating point a 64bit.
 - `XZR`/`WZR`contiene sempre il valore `0` e ignora le write.
-- X28` o `SP` è usato come stack pointer.
+- `X28` o `SP` è usato come stack pointer.
 - `X29` o `FP` è usato come frame pointer.
 - `X30` è usato per memorizzare l’indirizzo di ritorno di una funzione, chiamato link register `LR`.
 
